@@ -1,1 +1,1 @@
-web: NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program gunicorn main:app --bind 0.0.0.0:$PORT --workers 9 --threads 4 --timeout 120 --preload --access-logfile '-' --error-logfile '-' --max-requests 1000 --max-requests-jitter 50
+web: gunicorn app:app --bind 0.0.0.0:$PORT --workers 3 --threads 2 --timeout 120
