@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Analysis Tool - by trhacknon</title>
+    <!-- Inclusion de Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Styles personnalisés -->
+    <style>
+        /* Style général du corps */
+        body {
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Style de la barre de navigation */
+        .navbar {
+            background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #0a0a0a !important;
+            text-shadow: 1px 1px 2px #ffffff;
+        }
+
+        /* Style de la carte principale */
+        .card {
+            background-color: #1c1c1c;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 255, 255, 0.2);
+        }
+
+        .card-header {
+            background-color: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        /* Style des labels et des champs de formulaire */
+        .form-label {
+            color: #ff69b4;
+        }
+
+        .form-control {
+            background-color: #0a0a0a;
+            border: 1px solid #ff69b4;
+            color: #e0e0e0;
+        }
+
+        .form-control:focus {
+            background-color: #1c1c1c;
+            border-color: #00ffff;
+            box-shadow: 0 0 5px #00ffff;
+            color: #e0e0e0;
+        }
+
+        /* Style du bouton */
+        .btn-primary {
+            background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+            border: none;
+            color: #0a0a0a;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Style de la section des résultats */
+        #result {
+            background-color: #0a0a0a;
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        /* Style des textes d'analyse */
+        .analysis-header {
+            color: #ff69b4;
+            text-shadow: 0 0 5px #ff69b4;
+        }
+
+        .analysis-text {
+            color: #00ffff;
+            white-space: pre-wrap;
+        }
+
+        /* Style pour le footer */
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #555555;
+        }
+
+        /* Animation pour le header (rainbow effect) */
+        @keyframes rainbow {
+            0%{color: red;}
+            14%{color: orange;}
+            28%{color: yellow;}
+            42%{color: green;}
+            57%{color: blue;}
+            71%{color: indigo;}
+            85%{color: violet;}
+            100%{color: red;}
+        }
+
+        .rainbow-text {
+            animation: rainbow 5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barre de navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">trhacknon's Analyzer</a>
+        </div>
+    </nav>
+
+    <!-- Conteneur principal -->
+    <div class="container mt-5">
+        <div class="card p-4">
+            <div class="card-header text-center">
+                <h2 class="card-title rainbow-text">Analyze Visitor Connections</h2>
+            </div>
+            <div class="card-body">
+                <!-- Affichage de l'analyse -->
+                {% if analysis %}
+                    <div class="mb-4">
+                        <h3 class="analysis-header">Your Connection Analysis</h3>
+                        <p><strong>IP:</strong> {{ analysis.visitor_ip or 'Not available' }}</p>
+                        <p><strong>Location:</strong> {{ analysis.location or 'Not available' }}</p>
+                        <p><strong>Device Info:</strong> {{ analysis.device_info.device }} (Browser: {{ analysis.device_info.browser }}, OS: {{ analysis.device_info.os }})</p>
+                        <p class="analysis-text"><strong>Insights:</strong> {{ analysis.analysis }}</p>
+                    </div>
+                {% else %}
+                    <p class="text-center">No analysis available.</p>
+                {% endif %}
+
+                <!-- Formulaire pour une nouvelle analyse -->
+                <form id="analyze-form">
+                    <div class="mb-3">
+                        <label for="ip" class="form-label">IP Address</label>
+                        <input type="text" class="form-control" id="ip" placeholder="Enter IP Address" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="user_agent" class="form-label">User Agent</label>
+                        <input type="text" class="form-control" id="user_agent" placeholder="Enter User Agent" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Analyze</button>
+                </form>
+
+                <!-- Section des résultats -->
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; {{ current_year }} Developed by trhacknon</p>
+    </div>
+
+    <!-- Inclusion de Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script personnalisé -->
+    <script>
+        document.getElementById('analyze-form').onsubmit = async function(event) {
+            event.preventDefault();
+            const ip = document.getElementById('ip').value;
+            const user_agent = document.getElementById('user_agent').value;
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip, user_agent })
+            });
+            const result = await response.json();
+            document.getElementById('result').innerHTML = `
+                <div class="mt-4">
+                    <h3 class="analysis-header">Analysis</h3>
+                    <p><strong>IP:</strong> ${ip}</p>
+                    <p><strong>Location:</strong> ${result.location.city || 'Unknown'}, ${result.location.country_name || 'Unknown'}</p>
+                    <p><strong>Device Info:</strong> ${result.device_info.device} (Browser: ${result.device_info.browser}, OS: ${result.device_info.os})</p>
+                    <p class="analysis-text"><strong>Insights:</strong> ${result.analysis}</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
