@@ -8,12 +8,13 @@ from user_agents import parse
 
 from prometheus_flask_exporter import PrometheusMetrics
 
-metrics = PrometheusMetrics(app), 
-# Load environment variables
 load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
+# Load environment variables
+
 
 # List of OpenAI API keys
 API_KEYS = [
