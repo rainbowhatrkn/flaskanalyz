@@ -6,6 +6,9 @@ import random
 import requests
 from user_agents import parse
 
+from prometheus_flask_exporter import PrometheusMetrics
+
+metrics = PrometheusMetrics(app), 
 # Load environment variables
 load_dotenv()
 
